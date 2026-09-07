@@ -2,6 +2,8 @@
 
 A tool to automate the gathering of profiling and benchmarking information for Gradle builds.
 
+<!-- Show and tell test PR: this line is a placeholder demonstrating a test PR workflow. -->
+
 Profiling information can be captured using several different tools:
 
 - Using [Gradle build scans](https://gradle.com)
