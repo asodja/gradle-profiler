@@ -2,6 +2,8 @@
 
 A tool to automate the gathering of profiling and benchmarking information for Gradle builds.
 
+<!-- This is a test change opened as a demo PR for a Claude Code presentation. -->
+
 Profiling information can be captured using several different tools:
 
 - Using [Gradle build scans](https://gradle.com)
