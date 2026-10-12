@@ -1,0 +1,10 @@
+embeddedLibrary {
+  javaVersion 11
+  javaAgent {
+    premainClass "org.gradle.profiler.ide.agent.Agent"
+    addExports ["java.base/jdk.internal.misc=ALL-UNNAMED"]
+  }
+  dependencies {
+    implementation [:libs.asm, { project ":client-protocol" }]
+  }
+}

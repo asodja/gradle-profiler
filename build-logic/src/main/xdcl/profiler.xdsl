@@ -1,0 +1,168 @@
+// The gradle-profiler build's own XDCL schema: the project types every build.gradle.xdcl in this
+// build is written against, plus the settings-level block that wires up the build.
+package org.gradle.profiler.buildlogic
+
+import xdcl.gradle.bootstrap
+
+// ── dependencies ──────────────────────────────────────────────────────────────
+
+/// One dependency, written in one of four forms:
+///
+///     implementation [
+///       "com.google.guava:guava:33.5.0-jre",   // module coordinates
+///       :libs.guava,                           // entry of gradle/libs.versions.toml
+///       :libs.bundles.testDependencies,        // bundle of the version catalog
+///       :gradleApi,                            // the Gradle API of the running Gradle
+///       { project ":client-protocol" }         // another project of this build
+///     ]
+type DependencyDeclaration = String | Symbol | ProjectDependency
+
+/// A dependency on another project of this build, named by its full path.
+record ProjectDependency {
+  project: String
+}
+
+/// Dependency scopes of a component. Test scopes apply to the default `test` suite.
+record Dependencies {
+  api: [DependencyDeclaration]?
+  implementation: [DependencyDeclaration]?
+  runtimeOnly: [DependencyDeclaration]?
+  testImplementation: [DependencyDeclaration]?
+  testRuntimeOnly: [DependencyDeclaration]?
+}
+
+/// A version: a literal such as "2026.1", or a `[versions]` entry of the version catalog,
+/// written as `:libs.versions.<name>`.
+type Version = String | Symbol
+
+// ── traits ────────────────────────────────────────────────────────────────────
+
+/// Every project of this build. Group and version come from the build's versioning, and every
+/// component gets the `sanityCheck` task that `check` depends on.
+trait ProfilerComponent {
+  /// The project description, used for `gradle projects` and the published POM.
+  description: String?
+  dependencies: Dependencies?
+}
+
+// ── project types ─────────────────────────────────────────────────────────────
+
+/// A Java 17 library of the profiler (formerly `profiler.java-library`).
+template ProfilerLibrary with ProfilerComponent & Defaults {
+  profilerLibrary {}
+}
+
+/// A library packaged into the profiler jar and injected into the profiled Gradle build, so it
+/// is compiled for an old Java version to stay compatible with old Gradle versions
+/// (formerly `profiler.embedded-library`).
+template EmbeddedLibrary with ProfilerComponent & Defaults {
+  embeddedLibrary {
+    /// The source and target compatibility. Uses sourceCompatibility/targetCompatibility rather
+    /// than `--release` because some libraries need JDK-internal or multi-release APIs.
+    javaVersion: Int = 8
+  }
+}
+
+/// A Kotlin/JVM library of the profiler, Java 17 toolchain (formerly `profiler.kotlin-library`).
+template KotlinLibrary with ProfilerComponent & Defaults {
+  kotlinLibrary {}
+}
+
+/// A standalone Kotlin command-line application with an `install` task
+/// (`-P<applicationName>.install.dir` chooses the directory, default `distribution`).
+template KotlinApplication with ProfilerComponent & Defaults {
+  kotlinApplication {
+    mainClass: String
+    applicationName: String
+  }
+}
+
+/// The gradle-profiler application itself: the root project.
+template ProfilerApplication with ProfilerComponent & Defaults {
+  profilerApplication {
+    mainClass: String
+    /// Projects whose jars are packed into the profiler jar under `META-INF/jars`, without
+    /// version in the file name, for injection into profiled builds. A project missing from
+    /// the build (see `profilerBuild`) is skipped.
+    embeddedPlugins: [DependencyDeclaration]
+  }
+}
+
+/// The IntelliJ IDEA / Android Studio plugin that talks to the profiler during IDE sync.
+template IdePlugin with ProfilerComponent & Defaults {
+  idePlugin {
+    pluginName: String
+    platformVersion: Version
+    /// The lowest IDE build the plugin declares support for.
+    sinceBuild: Version
+    /// Plugins of the IDE the plugin compiles against.
+    bundledPlugins: [String]
+    /// The JetBrains Android plugin version; may need a bump when the platform version changes.
+    androidPluginVersion: Version
+  }
+}
+
+// ── optional features ─────────────────────────────────────────────────────────
+
+/// Publishes the component to Maven Central with sources and javadoc. Requires a `description`.
+extension Publishing for ProfilerComponent {
+  publishing {}
+}
+
+/// Packages the library as a Java agent.
+extension JavaAgent for EmbeddedLibrary {
+  javaAgent {
+    premainClass: String
+    /// `--add-exports` arguments for compilation, as `module/package=ALL-UNNAMED`.
+    addExports: [String]?
+  }
+}
+
+/// Fetches the Perfetto trace proto from the pinned upstream release and generates Java classes
+/// from it, instead of vendoring the generated sources. Bump version and checksum together.
+extension PerfettoProto for ProfilerLibrary {
+  perfettoProto {
+    version: String
+    /// SHA-256 of the raw upstream `perfetto_trace.proto`.
+    sha256: String
+  }
+}
+
+/// Bundles the HTML report JavaScript with browserify, run through a downloaded Node.js.
+extension HtmlReport for ProfilerApplication {
+  htmlReport {
+    nodeVersion: String
+  }
+}
+
+/// IDE sync tests against IntelliJ IDEA and Android Studio. The IDEs are downloaded and the
+/// tests run headless only when the Gradle property `autoDownloadAndRunInHeadless` is `true`.
+extension IdeTests for ProfilerApplication {
+  ideTests {
+    intellijVersion: Version
+    androidStudioVersion: Version
+    /// Android Studio download artifacts are named by codename since Panda.
+    androidStudioCodename: Version?
+    androidSdkVersion: Version
+  }
+}
+
+/// Release tasks: `publishToMavenCentral`, `gitPushTag`, `publishToGithubReleases`, `releaseToSdkMan`.
+extension Release for ProfilerApplication {
+  release {
+    githubRepository: String
+    sdkmanCandidate: String
+  }
+}
+
+// ── settings ──────────────────────────────────────────────────────────────────
+
+/// Build-wide wiring that the bootstrap settings schema cannot express: subprojects live under
+/// `subprojectsDirectory`, the repositories with content filters, Maven Central credentials, and
+/// the `ide-plugin` project, which is included unless the Gradle property `profiler.skipIdePlugin`
+/// is set (it compiles against a downloaded IDE distribution).
+extension ProfilerBuild for Settings {
+  profilerBuild {
+    subprojectsDirectory: String = "subprojects"
+  }
+}

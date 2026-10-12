@@ -1,1 +1,0 @@
-version = profilerVersion().get()

@@ -1,0 +1,5 @@
+embeddedLibrary {
+  dependencies {
+    api [:gradleApi]
+  }
+}

@@ -19,6 +19,35 @@ The project is organized into a core application and several subprojects handlin
     * `ide-agent`, `ide-plugin`: Integrations for Android Studio sync profiling.
     * `gradle-trace-converter-app`: A standalone utility for converting traces.
 
+## Build Definition
+
+The build is written in [XDCL](https://gradle.github.io/xdcl-starter-kit/), Gradle's declarative configuration language.
+It needs the XDCL-enabled Gradle distribution, which the wrapper downloads; stock Gradle does not read `.gradle.xdcl` files.
+The empty `settings.gradle` is only a marker so that IntelliJ IDEA recognizes the directory as a Gradle build.
+
+* `settings.gradle.xdcl`: plugins, repositories, and the list of projects. The `profilerBuild {}` block wires up what
+  the settings schema cannot express (project directories, repositories with content filters, Maven Central credentials).
+* `build.gradle.xdcl` in each project: data only, validated against the project types below.
+* `build-logic/`: the included build that defines the project types. `src/main/xdcl/profiler.xdsl` is the schema,
+  `org.gradle.profiler.build.xdcl` the plugin descriptor, and the Kotlin classes under `src/main/kotlin` are the
+  reactions that turn the declared data into Gradle configuration.
+
+Project types: `profilerLibrary` (Java 17), `embeddedLibrary` (Java 8, packed into the profiler jar), `kotlinLibrary`,
+`kotlinApplication`, `profilerApplication` (the root project), and `idePlugin`.
+Dependencies are written as coordinates, version catalog entries (`:libs.guava`, `:libs.bundles.testDependencies`),
+`:gradleApi`, or `{ project ":name" }`.
+
+To validate files without running Gradle, install the XDCL toolkit from the starter kit, then:
+
+```bash
+xdcl-gradle-sync sync .
+xdcl-lsp-client validate --root . settings.gradle.xdcl build.gradle.xdcl subprojects/*/build.gradle.xdcl
+xdcl-fmt -w settings.gradle.xdcl build.gradle.xdcl subprojects/*/build.gradle.xdcl build-logic/src/main/xdcl/*
+```
+
+The `ide-plugin` project compiles against a downloaded IntelliJ distribution.
+Set `profiler.skipIdePlugin=true` in `~/.gradle/gradle.properties` to leave it out of the build, for example on a slow connection.
+
 ## Sanity Check
 
 The project includes a `sanityCheck` task that provides a quick way to validate that the build is still well-defined.

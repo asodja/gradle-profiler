@@ -1,0 +1,11 @@
+idePlugin {
+  description "Contains logic for IDE plugin that communicates with profiler"
+  pluginName "gradle-profiler-ide-plugin"
+  platformVersion :libs.versions.intellijPlatformVersion
+  sinceBuild :libs.versions.minimalSupportedPlatformCode
+  bundledPlugins ["com.intellij.java", "com.intellij.gradle"]
+  androidPluginVersion :libs.versions.jetbrainsAndroidPluginVersion
+  dependencies {
+    implementation [{ project ":client-protocol" }]
+  }
+}

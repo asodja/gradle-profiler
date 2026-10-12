@@ -1,0 +1,13 @@
+settings {
+  rootProject {
+    name "build-logic"
+  }
+  plugins [
+    { id "plugin-development-ecosystem" },
+    // Kotlin toolchain for the reactions; the version matches the Kotlin embedded in Gradle.
+    { id "org.jetbrains.kotlin.jvm" version "2.4.10" apply false },
+  ]
+  dependencyResolutionManagement {
+    repositories [:mavenCentral, :gradlePluginPortal]
+  }
+}

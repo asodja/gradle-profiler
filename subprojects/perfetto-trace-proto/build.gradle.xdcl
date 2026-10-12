@@ -1,0 +1,11 @@
+profilerLibrary {
+  description "Generated Perfetto protobuf classes"
+  perfettoProto {
+    version "v55.3"
+    sha256 "e06bad0f59c13fd68557f5e323a344d5ca1e96fa8897882e761450c734a60ad2"
+  }
+  dependencies {
+    api [:libs.protobuf.java]
+  }
+  publishing {}
+}

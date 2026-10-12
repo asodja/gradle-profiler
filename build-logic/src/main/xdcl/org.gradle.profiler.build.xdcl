@@ -1,0 +1,19 @@
+plugin {
+  displayName "Gradle Profiler build conventions"
+  description "Project types and settings wiring of the gradle-profiler build"
+  reactions [
+    :org.gradle.profiler.buildlogic.ProfilerBuildReaction,
+    :org.gradle.profiler.buildlogic.ProfilerLibraryReaction,
+    :org.gradle.profiler.buildlogic.EmbeddedLibraryReaction,
+    :org.gradle.profiler.buildlogic.KotlinLibraryReaction,
+    :org.gradle.profiler.buildlogic.KotlinApplicationReaction,
+    :org.gradle.profiler.buildlogic.ProfilerApplicationReaction,
+    :org.gradle.profiler.buildlogic.IdePluginReaction,
+    :org.gradle.profiler.buildlogic.PublishingReaction,
+    :org.gradle.profiler.buildlogic.JavaAgentReaction,
+    :org.gradle.profiler.buildlogic.PerfettoProtoReaction,
+    :org.gradle.profiler.buildlogic.HtmlReportReaction,
+    :org.gradle.profiler.buildlogic.IdeTestsReaction,
+    :org.gradle.profiler.buildlogic.ReleaseReaction,
+  ]
+}
