@@ -1,0 +1,8 @@
+embeddedLibrary {
+  description "Plugin to collect build operation measurements."
+  dependencies {
+    api [:gradleApi]
+    implementation [:libs.guava, { project ":build-operations-measuring" }]
+    testImplementation [:libs.bundles.testDependencies]
+  }
+}

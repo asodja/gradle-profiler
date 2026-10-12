@@ -1,0 +1,4 @@
+profilerLibrary {
+  description "High-level API for defining actions which Profiler executes against Gradle builds"
+  publishing {}
+}

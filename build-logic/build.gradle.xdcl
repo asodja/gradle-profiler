@@ -1,0 +1,13 @@
+xdclGradlePluginKotlin {
+  dependencies {
+    // The plugins the reactions apply and configure.
+    implementation [
+      "org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0",
+      "com.google.protobuf:protobuf-gradle-plugin:0.9.6",
+      "com.github.node-gradle:gradle-node-plugin:7.1.0",
+      "io.sdkman:gradle-sdkvendor-plugin:3.0.0",
+      "org.jetbrains.intellij.platform:intellij-platform-gradle-plugin:2.15.0",
+      "com.gradleup.nmcp:nmcp:1.6.2",
+    ]
+  }
+}

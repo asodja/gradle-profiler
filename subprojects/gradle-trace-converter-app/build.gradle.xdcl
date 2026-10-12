@@ -1,0 +1,8 @@
+kotlinApplication {
+  mainClass "org.gradle.tools.traceconverter.AppKt"
+  applicationName "gtc"
+  dependencies {
+    implementation [{ project ":perfetto-converter-buildops" }]
+    testImplementation [:libs.bundles.testDependencies]
+  }
+}

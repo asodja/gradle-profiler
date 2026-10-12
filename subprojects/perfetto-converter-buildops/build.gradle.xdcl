@@ -1,0 +1,8 @@
+kotlinLibrary {
+  description "Library for converting Gradle build operation traces into Perfetto traces"
+  dependencies {
+    implementation [{ project ":perfetto-trace-proto" }, :libs.gson]
+    testImplementation [:libs.bundles.testDependencies]
+  }
+  publishing {}
+}

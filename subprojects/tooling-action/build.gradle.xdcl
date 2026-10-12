@@ -1,0 +1,5 @@
+embeddedLibrary {
+  dependencies {
+    implementation [:libs.toolingApi]
+  }
+}

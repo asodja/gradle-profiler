@@ -1,0 +1,36 @@
+settings {
+  rootProject {
+    name "gradle-profiler"
+  }
+  pluginManagement {
+    includedBuilds ["build-logic"]
+    repositories [:gradlePluginPortal, :mavenCentral]
+  }
+  plugins [
+    { id "com.gradle.develocity" version "4.3.2" },
+    { id "io.github.gradle.develocity-conventions-plugin" version "0.14.1" },
+    { id "org.gradle.toolchains.foojay-resolver-convention" version "1.0.0" },
+    { id "com.gradleup.nmcp.settings" version "1.6.2" },
+    { id "org.gradle.profiler.build" },
+  ]
+  dependencyResolutionManagement {
+    repositories [:mavenCentral]
+  }
+  // Projects live under subprojects/<name>; `ide-plugin` is included by profilerBuild below.
+  include [
+    "chrome-trace",
+    "build-operations",
+    "heap-dump",
+    "client-protocol",
+    "instrumentation-support",
+    "ide-agent",
+    "build-action",
+    "scenario-definition",
+    "tooling-action",
+    "perfetto-converter-buildops",
+    "perfetto-trace-proto",
+    "gradle-trace-converter-app",
+    "build-operations-measuring",
+  ]
+  profilerBuild {}
+}

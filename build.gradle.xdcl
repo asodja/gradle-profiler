@@ -1,0 +1,59 @@
+profilerApplication {
+  description "A tool to profile and benchmark Gradle builds"
+  mainClass "org.gradle.profiler.Main"
+  embeddedPlugins [
+    { project ":chrome-trace" },
+    { project ":build-operations" },
+    { project ":build-operations-measuring" },
+    { project ":instrumentation-support" },
+    { project ":ide-agent" },
+    { project ":heap-dump" },
+    { project ":ide-plugin" },
+  ]
+  dependencies {
+    // gradle/gradle uses these as part of Gradle Profiler-as-a-library
+    api [{ project ":build-action" }, { project ":build-operations-measuring" }]
+    implementation [
+      :libs.toolingApi,
+      { project ":client-protocol" },
+      { project ":scenario-definition" },
+      { project ":perfetto-converter-buildops" },
+      :libs.findbugs.annotations,
+      :libs.guava,
+      :libs.commons.math3,
+      :libs.javaparser,
+      :libs.jopt,
+      :libs.ant.compress,
+      // Avoid old version of commons-compress introduced by ant-compress
+      :libs.commons.compress,
+      :libs.commons.io,
+      :libs.jmc.flightrecorder,
+      // To extract launch details from Android Studio installation
+      :libs.dd.plist,
+      // To write JSON output
+      :libs.gson,
+    ]
+    runtimeOnly [:libs.slf4j.simple]
+    testImplementation [
+      :libs.bundles.testDependencies,
+      :libs.groovy.json,
+      :libs.groovy.xml,
+      { project ":tooling-action" },
+    ]
+    testRuntimeOnly [:libs.objenesis]
+  }
+  publishing {}
+  htmlReport {
+    nodeVersion "24.13.0"
+  }
+  ideTests {
+    intellijVersion :libs.versions.testIntellijVersion
+    androidStudioVersion :libs.versions.testAndroidStudioVersion
+    androidStudioCodename :libs.versions.testAndroidStudioCodename
+    androidSdkVersion :libs.versions.testAndroidSdkVersion
+  }
+  release {
+    githubRepository "gradle/gradle-profiler"
+    sdkmanCandidate "gradleprofiler"
+  }
+}

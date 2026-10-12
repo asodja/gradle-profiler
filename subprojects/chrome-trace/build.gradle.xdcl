@@ -1,0 +1,6 @@
+embeddedLibrary {
+  dependencies {
+    implementation [:gradleApi]
+    testImplementation [:libs.bundles.testDependencies]
+  }
+}

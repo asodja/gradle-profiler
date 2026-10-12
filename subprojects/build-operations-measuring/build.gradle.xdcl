@@ -1,0 +1,7 @@
+embeddedLibrary {
+  description "Code for build operations measuring shared between the profiler and the plugin"
+  dependencies {
+    testImplementation [:libs.bundles.testDependencies]
+  }
+  publishing {}
+}
